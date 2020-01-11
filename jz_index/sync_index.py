@@ -117,7 +117,12 @@ class IndexSync(SyncInfoMixin, BaseSync):
 
             self.log(to_insert)
             logger.info(to_insert)
-            # coll.insert_one(to_insert)
+            try:
+                coll.insert_one(to_insert)
+            except pymongo.errors.DuplicateKeyError:
+                self.log("重复")
+            else:
+                self.log("插入成功 ")
 
             logger.info(f"""insert success: \n
             date: {self.check_date} \n
@@ -180,15 +185,19 @@ class IndexSync(SyncInfoMixin, BaseSync):
                 "index_info": infos,
             }
             self.log(data)
-            # coll.insert_one(data)
-            self.log("插入成功 ")
+            try:
+                coll.insert_one(data)
+            except pymongo.errors.DuplicateKeyError:
+                self.log("重复")
+            else:
+                self.log("插入成功 ")
 
     def index_run(self):
         self.log("开始今天的指数更新服务 {}".format(self.check_date))
 
-        # self.process_daily(self.check_date)
+        self.process_daily(self.check_date)
 
         self.month_sync()
 
-        # if (self.check_date + datetime.timedelta(days=1)).month != self.check_date.month:
-        #     self.month_sync()
+        if (self.check_date + datetime.timedelta(days=1)).month != self.check_date.month:
+            self.month_sync()
