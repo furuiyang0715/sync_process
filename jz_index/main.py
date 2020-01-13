@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import time
+import datetime
 
 import schedule
 from raven import Client
@@ -48,6 +49,7 @@ def task():
 
 
 def main():
+    sentry.captureMessage(f"现在是 {datetime.datetime.today()}, 开始增量 stock.calendars 交易日历 ")
     schedule.every().day.at("17:30").do(task)
 
     while True:
