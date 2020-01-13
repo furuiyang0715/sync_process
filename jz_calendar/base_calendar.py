@@ -2,6 +2,8 @@ import datetime
 
 import pymysql
 
+import pandas as pd
+
 from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB
 
 
@@ -30,6 +32,19 @@ class BaseSync(object):
         """
         return dt.year * 10 ** 4 + dt.month * 10 ** 2 + dt.day
 
+    def get_date_list(self, start: datetime.datetime = None, end: datetime.datetime = None) -> list:
+        """
+        生成包含起止时间的 datetime 列表
+        for example: get_data_list(datetime.datetime(2020,1,1), datetime.datetime(2020,1,3))
+        return [datetime.datetime(2020,1,1), datetime.datetime(2020,1,2), datetime.datetime(2020,1,3)]
+        :param start:
+        :param end:
+        :return:
+        """
+        dates = pd.date_range(start=start, end=end, freq='1d')
+        dates = [date.to_pydatetime(date) for date in dates]
+        return dates
+
     def log(self, some, *args, **kwargs):
         if some:
             print("### {} ###".format(some))
@@ -37,3 +52,9 @@ class BaseSync(object):
             print("### {} ###".format(args))
         if kwargs:
             print("### {} ###".format(kwargs))
+
+
+# if __name__ == "__main__":
+#     d = BaseSync()
+#     ret = d.get_date_list(datetime.datetime(2020, 1, 1), datetime.datetime(2020, 1, 8))
+#     print(ret)
