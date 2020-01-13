@@ -49,8 +49,10 @@ def task():
 
 
 def main():
+    task()
+
     sentry.captureMessage(f"现在是 {datetime.datetime.today()}, 开始增量 stock.calendars 交易日历 ")
-    schedule.every().day.at("17:30").do(task)
+    schedule.every().day.at("16:00").do(task)
 
     while True:
         logger.info(schedule.jobs)
