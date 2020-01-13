@@ -1,3 +1,4 @@
+import datetime
 import os
 import configparser
 
@@ -19,6 +20,8 @@ MONGO_TABLE_2 = env("MONGO_TABLE_2", cf.get('mongodb', 'MONGO_TABLE_2'))
 SENTRY_DSN = env("SENTRY_DSN", cf.get('sentry', 'SENTRY_DSN'))
 
 RUN_ENV = env("RUN_ENV", cf.get('env', 'RUN_ENV'))
+
+MARKET_LIMIT_DATE = env("MARKET_LIMIT_DATE", datetime.datetime(2020, 12, 31))
 
 
 # print(MYSQL_HOST)

@@ -24,6 +24,7 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
     def __init__(self, timestamp):
         # 日历检查的快照时间戳
         self.timestamp = datetime.datetime.now()
+        pass
 
     def gen_calendars_mongo_sus(self, code):
         """
@@ -117,8 +118,11 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
 
         mon.insert_many(bulks)
 
-    def calendars_check(self):
-        logger.info(f"开始检查数据的一致性，本次检查的快照时间戳是 {self.timestamp}")
+        if real_trading_dates:
+            mon.delete_many({"code": code, "date": {"$in": list(real_trading_dates)}})
+
+    def calendars_check(self, codes, ts):
+        logger.info(f"开始检查数据的一致性，本次检查的快照时间戳是 {ts}")
         # 检验的截止时间
         limit_date = self.gen_next_date()
 
@@ -126,14 +130,13 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         market_start = self.market_first_day()
 
         # 拿到所有的codes
-        codes = self.all_codes
-
+        # codes = self.all_codes
         # codes_map = convert_front_map(codes)
 
         for code in codes:
 
             _, mysql_calendars_sus = self.gen_mysql_sus_info(
-                code, market_start, limit_date, self.timestamp)
+                code, market_start, limit_date, ts)
 
             f_code = self.convert_6code(code)
 
@@ -157,8 +160,74 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         if RUN_ENV == "124":
             self.holiday_mark()
 
+    def calendars_detection(self, ts1, ts2):
+        """
+        检查两个时间点之间的变动
+        :param ts1:
+        :param ts2:
+        :return:
+        """
+        DATACENTER = self.DC2()
+        DATACENTER.execute("use datacenter;")
+        delisted_sql = f"""
+            SELECT A.SecuCode from stk_liststatus B,const_secumainall A WHERE 
+            A.InnerCode=B.InnerCode 
+            AND A.SecuMarket IN(83,90) AND A.SecuCategory=1 
+            AND B.ChangeType IN(1,2,3,4,5,6)
+            and A.UPDATETIMEJZ > "{ts1}"
+            and A.UPDATETIMEJZ <= "{ts2}"
+            and B.UPDATETIMEJZ > "{ts1}"
+            and B.UPDATETIMEJZ <= "{ts2}"; 
+            """
+        d_changed = list(DATACENTER.execute(delisted_sql))
+        if d_changed:
+            d_changed = [j[0] for j in d_changed]
+        logger.info(f"d_changed: {d_changed}")
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        s_sql = f"""
+           select SecuCode from stk_specialnotice_new
+           where NoticeTypei = 18 and NoticeTypeii != 1703 
+           and UPDATETIMEJZ > '{ts1}'
+           and UPDATETIMEJZ <= '{ts2}'
+           ;"""
+        s_changed = list(DATACENTER.execute(s_sql))
+        if s_changed:
+            s_changed = [j[0] for j in s_changed]
+        logger.info(f"s_changed: {s_changed}")
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        changed = set(d_changed + s_changed)
+        logger.info(f"changed: {changed}")
+        # changed 和 all_codes 相交的部分才有意义
+        changed = set(self.all_codes) & changed
+
+        if changed:
+            logger.info(f"有改动的数据是 {changed}")
+            # check_and_update(changed, ts2)
+            self.calendars_check(changed, ts2)
+        else:
+            logger.info(f"{ts1} 和 {ts2} 之间无更新")
+
+
+def task_day():
+    d = CalendarsSync(datetime.datetime.now())
+    d.calendars_check(d.all_codes, d.timestamp)
+
+
+def task_5mins():
+    ts2 = datetime.datetime.now()
+    d = CalendarsSync(ts2)
+    # 将每次的检测时间回溯到近两天
+    ts1 = ts2 - datetime.timedelta(days=2)
+    mon = d.gen_calendars_mongo_coll()
+    d.check_market_calendar(mon, ts2)
+    d.calendars_detection(ts1, ts2)
+
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-    d = CalendarsSync(datetime.datetime.now())
-    d.calendars_check()
+
+    task_day()
+
+    task_5mins()
