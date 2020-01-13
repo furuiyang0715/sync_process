@@ -11,6 +11,25 @@ class MarketDaysMixin(BaseSync):
     """
     混入计算市场交易日的功能
     """
+    def market_first_day(self):
+        """
+        获取有记录的市场交易日的第一天
+        获取记录的来源: datacenter.const_tradingday
+        :return:
+        """
+        start = None
+        conn = self.DC()
+        query_sql = "select Date from const_tradingday where SecuMarket=83 order by Date asc limit 1"
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(query_sql)
+                res = cursor.fetchall()
+                for column in res:
+                    start = column[0]
+        finally:
+            conn.commit()
+        return start
+
     def gen_sh000001(self, start, end, timestamp):
         """
         对于整个市场, 从 start 到 end 之间非交易日列表 suspended
