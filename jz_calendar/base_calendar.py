@@ -29,3 +29,11 @@ class BaseSync(object):
         :return:
         """
         return dt.year * 10 ** 4 + dt.month * 10 ** 2 + dt.day
+
+    def log(self, some, *args, **kwargs):
+        if some:
+            print("### {} ###".format(some))
+        if args:
+            print("### {} ###".format(args))
+        if kwargs:
+            print("### {} ###".format(kwargs))
