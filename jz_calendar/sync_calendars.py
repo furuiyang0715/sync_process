@@ -12,6 +12,13 @@ logger = logging.getLogger()
 
 
 class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDaysMixin, HolidaysMixin):
+    """
+    针对于 calendars 数据库的更新服务
+
+    calendars 数据库中 sh0000001 存放全部的情况
+
+    其他的股票代码只存放除去市场不交易之外 自身不交易的情况
+    """
     def __init__(self, timestamp):
         # 日历检查的快照时间戳
         self.timestamp = datetime.datetime.now()
@@ -130,5 +137,7 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
             self.holiday_mark()
 
 
-# if __name__ == "__main__":
-#     check()
+if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    d = CalendarsSync(datetime.datetime.now())
+    d.calendars_check()
