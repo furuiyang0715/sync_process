@@ -85,4 +85,5 @@ class BaseSync(object):
         return cli
 
     def log(self, some):
-        print("====== {} ======".format(some))
+        # print("====== {} ======".format(some))
+        pass
