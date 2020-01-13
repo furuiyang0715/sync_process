@@ -43,3 +43,21 @@
     进行日更新。
     
     更新的 code 信息位于 info_mixin.py 文件中。 
+    
+    
+ ### 部署流程 
+ 
+    [local]
+    docker build -t registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1 .
+    
+    docker run -itd --name index_sync --env-file local.env registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
+    
+    docker push registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
+    
+    [test]
+    sudo docker pull registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
+    
+    sudo docker run -itd --name index_sync --env-file 124.env registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
+    
+    [product]
+    sudo docker run -itd --name index_sync --env-file lh01.env registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
