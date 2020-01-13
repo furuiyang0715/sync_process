@@ -11,7 +11,10 @@ MYSQL_PORT = int(env("MYSQL_PORT", cf.get('mysql', 'MYSQL_PORT')))
 MYSQL_USER = env("MYSQL_USER", cf.get('mysql', 'MYSQL_USER'))
 MYSQL_PASSWORD = env("MYSQL_PASSWORD", cf.get('mysql', 'MYSQL_PASSWORD'))
 MYSQL_DB = env("MYSQL_DB", cf.get('mysql', 'MYSQL_DB'))
+
 MONGO_URL = env("MONGO_URL", cf.get('mongodb', 'MONGO_URL'))
+MONGO_DB = env("MONGO_DB", cf.get('mongodb', 'MONGO_DB'))
+MONGO_TABLE = env("MONGO_TABLE", cf.get('mongodb', 'MONGO_TABLE'))
 SENTRY_DSN = env("SENTRY_DSN", cf.get('sentry', 'SENTRY_DSN'))
 
 
@@ -20,5 +23,8 @@ SENTRY_DSN = env("SENTRY_DSN", cf.get('sentry', 'SENTRY_DSN'))
 # print(MYSQL_USER)
 # print(MYSQL_PASSWORD)
 # print(MYSQL_DB)
+#
 # print(MONGO_URL)
+# print(MONGO_DB)
+# print(MONGO_TABLE)
 # print(SENTRY_DSN)

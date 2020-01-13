@@ -21,7 +21,7 @@ class IndexSync(SyncInfoMixin, BaseSync):
         mon = pymongo.MongoClient(MONGO_URL)
 
         coll = mon.JQdata.generate_indexcomponentsweight  # 写死的
-        # coll = mon.JQdata.test_index
+        coll = mon[MONGO_DB][MONGO_TABLE]
 
         try:
             self.ensure_index_coll(coll)
