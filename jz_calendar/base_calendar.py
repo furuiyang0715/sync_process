@@ -62,6 +62,19 @@ class BaseSync(object):
         limit_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min) + datetime.timedelta(days=1)
         return limit_date
 
+    def convert_6code(self, code):
+        """
+        将代码加上前缀
+        :param code:
+        :return:
+        """
+        if str(code)[0] in ["3", "0"]:
+            return "SZ" + code
+        elif str(code)[0] in ['6']:
+            return "SH" + code
+        else:
+            raise ValueError("格式转换异常值")
+
     def log(self, some, *args, **kwargs):
         if some:
             print("### {} ###".format(some))
