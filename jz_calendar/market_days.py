@@ -1,8 +1,13 @@
 import datetime
+import logging
 
 from jz_calendar.base_calendar import BaseSync
 
 import jqdatasdk as jqsdk
+
+from jz_calendar.configs import MARKET_LIMIT_DATE
+
+logger = logging.getLogger()
 
 jqsdk.auth('15626046299', '046299')
 
@@ -139,6 +144,34 @@ class MarketDaysMixin(BaseSync):
         self.log(len(jq_trades), jq_trades[0], jq_trades[-1])
 
         return trades == jq_trades
+
+    def check_market_calendar(self, mon, ts):
+        """
+        每日定时任务检查市场交易日历是否发生变化
+        :param ts:
+        :return:
+        """
+        exist = mon.find({"code": "SH000001"}).count()
+        market_limit_date = MARKET_LIMIT_DATE
+        start = self.market_first_day()
+        sus, _ = self.gen_sh000001(start, market_limit_date, ts)
+        sh0001_sus = sorted(list(set(sus)))
+        if not exist:
+            logger.info("market first sync.")
+            self.bulk_insert(mon, "SH000001", sh0001_sus, start=start, end=market_limit_date)
+        else:
+            already_dates = mon.find({"code": "SH000001", "ok": False}).distinct("date")
+            int_already_dates = set([self.yyyymmdd_date(date) for date in already_dates])
+            int_sh0001_sus = set([self.yyyymmdd_date(d) for d in sh0001_sus])
+            if int_sh0001_sus == int_already_dates:
+                logger.info("无需更新 .")
+            else:
+                logger.info("市场交易日历需要重新插入.")
+                # 记录了交易日历需要重新插入: 先删除原来的 再重新插入
+                mon.delete_many({"code": "SH000001"})
+                logger.info("原市场交易日历 SH000001 删除")
+                self.bulk_insert(mon, "SH000001", sh0001_sus, start=start, end=market_limit_date)
+                logger.info("新市场交易日历更新成功 ")
 
 
 # if __name__ == "__main__":
