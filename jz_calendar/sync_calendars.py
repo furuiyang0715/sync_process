@@ -30,8 +30,9 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         :return:
         """
         mon = self.gen_calendars_mongo_coll()
-        cursor = mon.find({"code": code, "ok": False}, {"date_int": 1, "_id": 0})
-        mongo_sus = sorted([j.get("date_int") for j in cursor])
+        # cursor = mon.find({"code": code, "ok": False}, {"date_int": 1, "_id": 0})
+        cursor = mon.find({"code": code, "ok": False}, {"date": 1, "_id": 0})
+        mongo_sus = sorted([j.get("date") for j in cursor])
         return mongo_sus
 
     def gen_mysql_sus_info(self, code, start, end, ts):
@@ -78,7 +79,7 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
     def update_calendars(self, code, real_sus_dates, real_trading_dates):
         """
         针对未核对上的情况 对 calendars 数据库进行更新
-        :param code:
+        :param code: 前缀模式的股票代码
         :param real_sus_dates:
         :param real_trading_dates:
         :return:
@@ -86,15 +87,15 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         mon = self.gen_calendars_mongo_coll()
         for sus in real_sus_dates:
             # 有则更新
-            if list(mon.find({"code": code, "date_int": sus})):
-                mon.update_one({"code": code, "date_int": sus}, {"$set": {"ok": False}})
+            if list(mon.find({"code": code, "date": sus})):
+                mon.update_one({"code": code, "date": sus}, {"$set": {"ok": False}})
             else:
                 # 无则插入
-                data = {"code": code, "date_int": sus, 'date': self.back_convert_date_int(sus), "ok": False}
-                mon.insert(data)
+                data = {"code": code, "date": sus, 'date_int': self.yyyymmdd_date(sus), "ok": False}
+                mon.insert_one(data)
 
         if real_trading_dates:
-            mon.delete_many({"code": code, "date_int": {"$in": list(real_trading_dates)}})
+            mon.delete_many({"code": code, "date": {"$in": list(real_trading_dates)}})
 
     def calendars_check(self):
         logger.info(f"开始检查数据的一致性，本次检查的快照时间戳是 {self.timestamp}")
@@ -129,7 +130,7 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
                 real_trading_dates = set(calendars_mongo_sus) - set(mysql_calendars_sus)
                 logger.info(f"real_trading_dates: {real_trading_dates}")
 
-                self.update_calendars(real_sus_dates, real_trading_dates)
+                self.update_calendars(f_code, real_sus_dates, real_trading_dates)
 
         # mark 一遍 holiday 字段
         # 只在 124 服务上添加该字段
