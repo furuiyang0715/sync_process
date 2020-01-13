@@ -31,9 +31,15 @@
     
     
     (4)  将 inner_code 映射到后缀模式--> 再转为前缀模式 
+    后改为将 inner_code 直接在写死的字典中映射到入库所需的前缀模式 
+    
 
 
 ### 指数日更新逻辑 
 
-
-
+    根据查询语句： 
+    select distinct(IndexCode) from datacenter.index_weight;
+    
+    进行日更新。
+    
+    更新的 code 信息位于 info_mixin.py 文件中。 
