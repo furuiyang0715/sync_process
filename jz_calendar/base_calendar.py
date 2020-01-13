@@ -8,8 +8,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MONGO_URL, MONGO_DB, \
-    MONGO_TABLE_2
-
+    MONGO_TABLE_2, MONGO_TABLE_1
 
 logger = logging.getLogger()
 
@@ -47,6 +46,13 @@ class BaseSync(object):
         :return:
         """
         return pymongo.MongoClient(MONGO_URL)[MONGO_DB][MONGO_TABLE_2]
+
+    def gen_calendar_mongo_coll(self):
+        """
+        生成 calendar 表的 mongo 连接
+        :return:
+        """
+        return pymongo.MongoClient(MONGO_URL)[MONGO_DB][MONGO_TABLE_1]
 
     def yyyymmdd_date(self, dt: datetime.datetime) -> int:
         """
@@ -101,17 +107,7 @@ class BaseSync(object):
         else:
             raise ValueError("格式转换异常值")
 
-    def bulk_insert(self, mon, code, suspended, start, end):
-        """
-        按照顺序生成起止时间内的全部交易日历信息
-        :param mon:
-        :param code: 前缀形式的股票代码
-        :param suspended: 非交易日
-        :param start: 开始时间
-        :param end: 结束时间
-        :return:
-        """
-        # 保险起见 将 suspend 去重排序
+    def gen_bulk(self, code, suspended, start, end):
         suspended = sorted(list(set(suspended)))
         bulk = list()
         dt = start
@@ -148,6 +144,56 @@ class BaseSync(object):
                     bulk.append({"code": code, "date": _date, 'date_int': self.yyyymmdd_date(_date), "ok": True})
         logger.info(f"{code}  \n{bulk[0]}  \n{bulk[-1]}")
 
+        return bulk
+
+    def bulk_insert(self, mon, code, suspended, start, end):
+        """
+        按照顺序生成起止时间内的全部交易日历信息
+        :param mon:
+        :param code: 前缀形式的股票代码
+        :param suspended: 非交易日
+        :param start: 开始时间
+        :param end: 结束时间
+        :return:
+        """
+        # # 保险起见 将 suspend 去重排序
+        # suspended = sorted(list(set(suspended)))
+        # bulk = list()
+        # dt = start
+        #
+        # if not suspended:
+        #     logger.info("无 sus_bulk")
+        #
+        #     for _date in self.get_date_list(dt, end):
+        #         bulk.append({"code": code, "date": _date, 'date_int': self.yyyymmdd_date(_date), "ok": True})
+        #
+        # else:
+        #     for d in suspended:  # 对于其中的每一个停牌日
+        #         # 转换为 整点 模式,  为了 {datetime.datetime(1991, 4, 14, 1, 0)} 这样的数据的存在
+        #         d = datetime.datetime.combine(d.date(), datetime.time.min)
+        #
+        #         while dt <= d:
+        #
+        #             if dt < d:
+        #                 bulk.append({"code": code, "date": dt, "date_int": self.yyyymmdd_date(dt), "ok": True})
+        #                 # print(f"{yyyymmdd_date(dt)}: True")
+        #
+        #             else:  # 相等即为非交易日
+        #                 bulk.append({"code": code, "date": dt, "date_int": self.yyyymmdd_date(dt), "ok": False})
+        #                 # print(f"{yyyymmdd_date(dt)}: False")
+        #
+        #             dt += datetime.timedelta(days=1)
+        #
+        #     # print(dt)  # dt 此时已经是最后一个停牌日期 + 1 的状态了
+        #     # print(end)
+        #
+        #     # dt > d:  已经跳出停牌日 在(停牌日+1) 到 截止时间 之间均为交易日
+        #     if dt <= end:
+        #         for _date in self.get_date_list(suspended[-1] + datetime.timedelta(days=1), end):
+        #             bulk.append({"code": code, "date": _date, 'date_int': self.yyyymmdd_date(_date), "ok": True})
+        # logger.info(f"{code}  \n{bulk[0]}  \n{bulk[-1]}")
+
+        bulk = self.gen_bulk(code, suspended, start, end)
         try:
             mon.insert_many(bulk)
         except Exception as e:

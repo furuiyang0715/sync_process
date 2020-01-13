@@ -27,7 +27,7 @@ logging.config.dictConfig({
         "index_file_log": {
             "level": "DEBUG",
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": os.path.join(log_dir, "main.log"),
+            "filename": os.path.join(log_dir, "index.log"),
             "formatter": "simple",
             "when": "D",
             "backupCount": 5
@@ -43,4 +43,4 @@ logging.config.dictConfig({
 
 
 # print(log_dir)
-# logger = logging.getLogger("index_log")
+logger = logging.getLogger("index_log")
