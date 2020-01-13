@@ -61,3 +61,15 @@
     
     [product]
     sudo docker run -itd --name index_sync --env-file lh01.env registry.cn-shenzhen.aliyuncs.com/jzdev/jzsync/index:v0.0.1
+    
+    for example: 
+    [local.env] 
+    MYSQL_HOST=xxxxxx
+    MYSQL_PORT=xxxxxx
+    MYSQL_USER=xxxxxx
+    MYSQL_PASSWORD=xxxxxx
+    MYSQL_DB=xxxxxx
+    MONGO_URL=xxxxxx
+    MONGO_DB=xxxxxx
+    MONGO_TABLE=xxxxxx
+    SENTRY_DSN=xxxxxx
