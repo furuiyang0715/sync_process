@@ -1,9 +1,13 @@
 import functools
 import logging
+import os
+import sys
 import time
 
 import schedule
 from raven import Client
+
+sys.path.insert(0, "./..")
 
 from jz_index.configs import SENTRY_DSN
 from jz_index.sync_index import IndexSync
