@@ -1,6 +1,8 @@
 import datetime
 import logging
 
+import bson
+
 from jz_calendar.configs import RUN_ENV
 from jz_calendar.delisted_days import DelistedDaysMixin
 from jz_calendar.holiday_days import HolidaysMixin
@@ -44,6 +46,8 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         :param ts: 时间戳
         :return:
         """
+        logger.info("")
+        logger.info("")
         logger.info(f"code: {code}")
         logger.info("市场停牌： ")
         market_sus, _ = self.gen_sh000001(start, end, ts)
@@ -85,17 +89,33 @@ class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDa
         :return:
         """
         mon = self.gen_calendars_mongo_coll()
-        for sus in real_sus_dates:
-            # 有则更新
-            if list(mon.find({"code": code, "date": sus})):
-                mon.update_one({"code": code, "date": sus}, {"$set": {"ok": False}})
-            else:
-                # 无则插入
-                data = {"code": code, "date": sus, 'date_int': self.yyyymmdd_date(sus), "ok": False}
-                mon.insert_one(data)
+        # for sus in real_sus_dates:
+        #     # 有则更新
+        #     if list(mon.find({"code": code, "date": sus})):
+        #         mon.update_one({"code": code, "date": sus}, {"$set": {"ok": False}})
+        #     else:
+        #         # 无则插入
+        #         data = {"code": code, "date": sus, 'date_int': self.yyyymmdd_date(sus), "ok": False}
+        #         mon.insert_one(data)
+        #
+        # if real_trading_dates:
+        #     mon.delete_many({"code": code, "date": {"$in": list(real_trading_dates)}})
 
-        if real_trading_dates:
-            mon.delete_many({"code": code, "date": {"$in": list(real_trading_dates)}})
+        exist_dates_cursor = mon.find({"code": code, "date": {"$in": list(real_sus_dates)}}, {"_id": 0, "date": 1})
+        exist_dates = [r.get("date") for r in exist_dates_cursor]
+
+        mon.update_many({"code": code, "date": {"$in": exist_dates}},
+                        {"$set": {"ok": False}},
+                        )
+
+        non_exist_dates = set(real_sus_dates) - set(exist_dates)
+        bulks = []
+        for sus in non_exist_dates:
+            data = {"_id": bson.ObjectId(), "code": code, "date": sus,
+                    'date_int': self.yyyymmdd_date(sus), "ok": False}
+            bulks.append(data)
+
+        mon.insert_many(bulks)
 
     def calendars_check(self):
         logger.info(f"开始检查数据的一致性，本次检查的快照时间戳是 {self.timestamp}")
