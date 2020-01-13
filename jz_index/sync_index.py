@@ -9,7 +9,7 @@ from jz_index.base_index import BaseSync
 from jz_index.configs import MONGO_URL, MONGO_DB, MONGO_TABLE
 from jz_index.info_mixin import SyncInfoMixin
 
-logger = logging.getLogger("main_log")
+logger = logging.getLogger("index_log")
 
 
 class IndexSync(SyncInfoMixin, BaseSync):
@@ -86,8 +86,6 @@ class IndexSync(SyncInfoMixin, BaseSync):
         return ret_dict
 
     def month_sync(self):
-        logger.info("执行指数的月更新任务")
-
         mysql_con = self.DC()
         coll = self.gen_index_coll()
 
@@ -101,6 +99,8 @@ class IndexSync(SyncInfoMixin, BaseSync):
         inner_code_list = list(inner_code_map.keys())
 
         for inner_code in inner_code_list:
+            logger.info("")
+            logger.info("inner_code: {}".format(inner_code))
             self.log(inner_code)
 
             # 生成权重数据
@@ -121,15 +121,18 @@ class IndexSync(SyncInfoMixin, BaseSync):
                 coll.insert_one(to_insert)
             except pymongo.errors.DuplicateKeyError:
                 self.log("重复")
+                logger.warning("插入重复")
+            except Exception:
+                traceback.print_exc()
+                raise Exception
             else:
+                logger.info("插入成功")
                 self.log("插入成功 ")
 
             logger.info(f"""insert success: \n
             date: {self.check_date} \n
             index: {front_index_code} \n
             index_info: {index_secucode_weight_dict}""")
-
-            logger.info("")
 
     def daily_indexs(self):
         """
@@ -148,6 +151,8 @@ class IndexSync(SyncInfoMixin, BaseSync):
         :return:
         """
 
+        logger.info("开始今天的指数【日更新】服务")
+
         dt = dt.strftime("%Y-%m-%d %H:%M:%S")
 
         coll = self.gen_index_coll()
@@ -157,6 +162,7 @@ class IndexSync(SyncInfoMixin, BaseSync):
         self.log("需要进行日更新的相关代码信息是 {}".format(daily_map))
 
         for index_code in list(daily_map.keys()):
+            logger.info("")  # 在日志中清晰空行
             logger.info(f"index_code: {index_code}")
             self.log(index_code)
 
@@ -180,7 +186,9 @@ class IndexSync(SyncInfoMixin, BaseSync):
                 infos.update({self.convert_6code(r[2]): float(r[3])})
 
             data = {
+                # 如果有更新的话 其插入的时间是当天的更新时间 check_date
                 "date": self.check_date,
+                # 插入的代码是前缀模式的代码
                 "index": daily_map.get(index_code),
                 "index_info": infos,
             }
@@ -188,16 +196,25 @@ class IndexSync(SyncInfoMixin, BaseSync):
             try:
                 coll.insert_one(data)
             except pymongo.errors.DuplicateKeyError:
-                self.log("重复")
+                self.log("重复插入")
+                logger.warning("重复插入")
+            except Exception:
+                logger.warning("插入失败 ")
+                traceback.print_exc()
+                raise Exception
             else:
                 self.log("插入成功 ")
+                logger.info("插入成功")
 
     def index_run(self):
         self.log("开始今天的指数更新服务 {}".format(self.check_date))
+
+        logger.info("开始今天的指数更新服务 {}".format(self.check_date))
 
         self.process_daily(self.check_date)
 
         # self.month_sync()
 
         if (self.check_date + datetime.timedelta(days=1)).month != self.check_date.month:
+            logger.info("开始本月的指数【月更新】服务")
             self.month_sync()

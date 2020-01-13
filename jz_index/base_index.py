@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 
 from jz_index.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB
 
-logger = logging.getLogger("index")
+logger = logging.getLogger("index_log")
 
 
 class BaseSync(object):
