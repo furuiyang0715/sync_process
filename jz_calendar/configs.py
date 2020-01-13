@@ -18,6 +18,8 @@ MONGO_TABLE_1 = env("MONGO_TABLE_1", cf.get('mongodb', 'MONGO_TABLE_1'))
 MONGO_TABLE_2 = env("MONGO_TABLE_2", cf.get('mongodb', 'MONGO_TABLE_2'))
 SENTRY_DSN = env("SENTRY_DSN", cf.get('sentry', 'SENTRY_DSN'))
 
+RUN_ENV = env("RUN_ENV", cf.get('env', 'RUN_ENV'))
+
 
 # print(MYSQL_HOST)
 # print(MYSQL_PORT)
@@ -30,3 +32,5 @@ SENTRY_DSN = env("SENTRY_DSN", cf.get('sentry', 'SENTRY_DSN'))
 # print(MONGO_TABLE_1)
 # print(MONGO_TABLE_2)
 # print(SENTRY_DSN)
+
+print(RUN_ENV)
