@@ -1,10 +1,12 @@
 import datetime
 
+import pymongo
 import pymysql
 
 import pandas as pd
 
-from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB
+from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MONGO_URL, MONGO_DB, \
+    MONGO_TABLE_2
 
 
 class BaseSync(object):
@@ -22,6 +24,13 @@ class BaseSync(object):
             charset='utf8mb4',
             db=MYSQL_DB,
         )
+
+    def gen_calendars_mongo_coll(self):
+        """
+        生成 calendars 表的 mongo 连接
+        :return:
+        """
+        return pymongo.MongoClient(MONGO_URL)[MONGO_DB][MONGO_TABLE_2]
 
     def yyyymmdd_date(self, dt: datetime.datetime) -> int:
         """
