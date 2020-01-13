@@ -4,6 +4,7 @@ import pymongo
 import pymysql
 
 import pandas as pd
+from sqlalchemy import create_engine
 
 from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MONGO_URL, MONGO_DB, \
     MONGO_TABLE_2
@@ -13,7 +14,7 @@ class BaseSync(object):
 
     def DC(self):
         """
-        mysql 连接对象
+        基于 pymysql 生成的 mysql 连接对象
         :return:
         """
         return pymysql.connect(
@@ -24,6 +25,17 @@ class BaseSync(object):
             charset='utf8mb4',
             db=MYSQL_DB,
         )
+
+    def DC2(self):
+        """
+        基于 sqlalchemy 生成的 mysql 连接对象
+        :return:
+        """
+        mysql_string = f"""mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/
+                           {MYSQL_DB}?charset=gbk"""
+        cli = create_engine(mysql_string)
+
+        return cli
 
     def gen_calendars_mongo_coll(self):
         """
