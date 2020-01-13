@@ -365,3 +365,6 @@ class SyncInfoMixin(object):
         return lst2_map
 
 
+
+
+print(len(SyncInfoMixin().daily_code()))

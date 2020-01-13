@@ -20,8 +20,8 @@ class IndexSync(SyncInfoMixin, BaseSync):
         """
         mon = pymongo.MongoClient(MONGO_URL)
 
-        # coll = mon.JQdata.generate_indexcomponentsweight # 写死的
-        coll = mon.JQdata.test_index
+        coll = mon.JQdata.generate_indexcomponentsweight  # 写死的
+        # coll = mon.JQdata.test_index
 
         try:
             self.ensure_index_coll(coll)
@@ -180,7 +180,7 @@ class IndexSync(SyncInfoMixin, BaseSync):
                 infos.update({self.convert_6code(r[2]): float(r[3])})
 
             data = {
-                "date": dt,
+                "date": self.check_date,
                 "index": daily_map.get(index_code),
                 "index_info": infos,
             }
@@ -197,7 +197,7 @@ class IndexSync(SyncInfoMixin, BaseSync):
 
         self.process_daily(self.check_date)
 
-        self.month_sync()
+        # self.month_sync()
 
         if (self.check_date + datetime.timedelta(days=1)).month != self.check_date.month:
             self.month_sync()
