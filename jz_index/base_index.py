@@ -18,8 +18,8 @@ class BaseSync(object):
         """
         更新时间,需要每天实例化一次
         """
-        # self.check_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
-        self.check_date = datetime.datetime(2020, 1, 10)
+        self.check_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+        # self.check_date = datetime.datetime(2020, 1, 10)
 
     def little8code(self, x):
         """

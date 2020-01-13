@@ -6,7 +6,7 @@ import pymongo
 import logging
 
 from jz_index.base_index import BaseSync
-from jz_index.configs import MONGO_URL
+from jz_index.configs import MONGO_URL, MONGO_DB, MONGO_TABLE
 from jz_index.info_mixin import SyncInfoMixin
 
 logger = logging.getLogger("main_log")
@@ -20,7 +20,7 @@ class IndexSync(SyncInfoMixin, BaseSync):
         """
         mon = pymongo.MongoClient(MONGO_URL)
 
-        coll = mon.JQdata.generate_indexcomponentsweight  # 写死的
+        # coll = mon.JQdata.generate_indexcomponentsweight
         coll = mon[MONGO_DB][MONGO_TABLE]
 
         try:
