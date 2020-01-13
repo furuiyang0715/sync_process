@@ -41,6 +41,16 @@ class BaseSync(object):
         """
         return dt.year * 10 ** 4 + dt.month * 10 ** 2 + dt.day
 
+    def back_convert_date_int(self, date_int):
+        """
+        convert date_int to datetime
+        :param date_int:
+        :return:
+        """
+        _year, _ret = divmod(date_int, 10000)
+        _month, _day = divmod(_ret, 100)
+        return datetime.datetime(_year, _month, _day)
+
     def get_date_list(self, start: datetime.datetime = None, end: datetime.datetime = None) -> list:
         """
         生成包含起止时间的 datetime 列表
