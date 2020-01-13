@@ -54,6 +54,14 @@ class BaseSync(object):
         dates = [date.to_pydatetime(date) for date in dates]
         return dates
 
+    def gen_next_date(self):
+        """
+        生成当前时间的下一天，即 today 的下一天的零点时间
+        :return:
+        """
+        limit_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min) + datetime.timedelta(days=1)
+        return limit_date
+
     def log(self, some, *args, **kwargs):
         if some:
             print("### {} ###".format(some))
