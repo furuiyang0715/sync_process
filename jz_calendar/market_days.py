@@ -1,13 +1,9 @@
 import datetime
-import logging
-
-from jz_calendar.base_calendar import BaseSync
-
 import jqdatasdk as jqsdk
 
+from jz_calendar.base_calendar import BaseSync
 from jz_calendar.configs import MARKET_LIMIT_DATE
-
-logger = logging.getLogger()
+from jz_calendar.my_log import logger
 
 jqsdk.auth('15626046299', '046299')
 
@@ -178,3 +174,6 @@ class MarketDaysMixin(BaseSync):
 #     d = MarketDaysMixin()
 #     ret = d.checkout_with_jqdatasdk(datetime.datetime(2005,1,1), datetime.datetime(2020, 12, 31))
 #     print(ret)
+
+
+# logger.info("market")

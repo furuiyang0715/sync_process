@@ -8,9 +8,8 @@ from jz_calendar.delisted_days import DelistedDaysMixin
 from jz_calendar.holiday_days import HolidaysMixin
 from jz_calendar.info_mixin import SyncInfoMixin
 from jz_calendar.market_days import MarketDaysMixin
+from jz_calendar.my_log import logger
 from jz_calendar.suspend_days import SuspendDaysMixin
-
-logger = logging.getLogger()
 
 
 class CalendarsSync(SyncInfoMixin, MarketDaysMixin, SuspendDaysMixin, DelistedDaysMixin, HolidaysMixin):
@@ -225,9 +224,13 @@ def task_5mins():
     d.calendars_detection(ts1, ts2)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+# if __name__ == "__main__":
+#     # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+#
+#     task_day()
+#
+#     task_5mins()
 
-    task_day()
 
-    task_5mins()
+
+# logger.info("happy")

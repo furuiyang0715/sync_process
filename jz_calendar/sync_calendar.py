@@ -2,9 +2,8 @@ import datetime
 import logging
 import bson
 
+from jz_calendar.my_log import logger_1 as logger
 from jz_calendar.sync_calendars import CalendarsSync
-
-logger = logging.getLogger()
 
 
 class CalendarSync(CalendarsSync):
@@ -24,7 +23,8 @@ class CalendarSync(CalendarsSync):
     def calendar_sync(self, codes, ts):
 
         mon = self.gen_calendar_mongo_coll()
-        # self.check_market_calendar(mon, ts)
+        # 每日检查一遍 SH000001 的市场交易日情况
+        self.check_market_calendar(mon, ts)
 
         # 检验的截止时间
         limit_date = self.gen_next_date()
@@ -65,4 +65,6 @@ def task_day():
     d.calendar_sync(d.all_codes, d.timestamp)
 
 
-task_day()
+# task_day()
+
+logger.info("hello")

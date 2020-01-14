@@ -1,10 +1,8 @@
-import datetime
-import logging
 import sys
+import datetime
 
 from jz_calendar.base_calendar import BaseSync
-
-logger = logging.getLogger()
+from jz_calendar.my_log import logger
 
 
 class SuspendDaysMixin(BaseSync):
@@ -107,3 +105,6 @@ class SuspendDaysMixin(BaseSync):
 #     ret = d.gen_inc_code_sus("000693", datetime.datetime(2005, 1, 1), datetime.datetime(2020, 1, 1),
 #                              datetime.datetime.now())
 #     print(ret)
+
+
+# logger.info("sus")

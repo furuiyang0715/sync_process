@@ -1,6 +1,4 @@
 import datetime
-import logging
-
 import pymongo
 import pymysql
 
@@ -10,7 +8,7 @@ from sqlalchemy import create_engine
 from jz_calendar.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MONGO_URL, MONGO_DB, \
     MONGO_TABLE_2, MONGO_TABLE_1
 
-logger = logging.getLogger()
+from jz_calendar.my_log import logger
 
 
 class BaseSync(object):
@@ -212,3 +210,6 @@ class BaseSync(object):
 #     d = BaseSync()
 #     ret = d.get_date_list(datetime.datetime(2020, 1, 1), datetime.datetime(2020, 1, 8))
 #     print(ret)
+
+
+# logger.info("base")

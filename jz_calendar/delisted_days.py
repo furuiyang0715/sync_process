@@ -1,10 +1,7 @@
 import datetime
-import logging
 
 from jz_calendar.base_calendar import BaseSync
-
-
-logger = logging.getLogger()
+from jz_calendar.my_log import logger
 
 
 class DelistedDaysMixin(BaseSync):
@@ -139,3 +136,6 @@ class DelistedDaysMixin(BaseSync):
 #     d = DelistedDaysMixin()
 #     ret = d.delisted_days("000693", datetime.datetime.now(), datetime.datetime(2020, 1, 1))
 #     print(ret)
+
+
+# logger.info("delisted")

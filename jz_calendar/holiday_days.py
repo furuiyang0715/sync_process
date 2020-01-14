@@ -1,10 +1,8 @@
 import datetime
-import logging
 
 from chinese_calendar import get_holidays
 from jz_calendar.base_calendar import BaseSync
-
-logger = logging.getLogger()
+from jz_calendar.my_log import logger
 
 
 class HolidaysMixin(BaseSync):
@@ -78,3 +76,6 @@ class HolidaysMixin(BaseSync):
 # if __name__ == "__main__":
 #     d = HolidaysMixin()
 #     d.holiday_mark()
+
+
+# logger.info("holiday")
