@@ -44,7 +44,8 @@ class CalendarSync(CalendarsSync):
             for d in self.get_date_list(new_start_2020, limit_date):
                 if d in mysql_all_sus:   # 停牌日
                     if calendar_mongo_info.get(d) is None:
-                        mon.insert_one({"_id": bson.ObjectId(), "code": f_code, "date": d, "date_int": self.yyyymmdd_date(d), "ok": False})
+                        mon.insert_one({"_id": bson.ObjectId(), "code": f_code, "date": d,
+                                        "date_int": self.yyyymmdd_date(d), "ok": False})
                     elif calendar_mongo_info.get(d) is False:
                         pass
                     elif calendar_mongo_info.get(d) is True:
@@ -52,7 +53,8 @@ class CalendarSync(CalendarsSync):
                             {"code": f_code, "date": d}, {"$set": {"ok": False}})
                 else:    # 交易日
                     if calendar_mongo_info.get(d) is None:
-                        mon.insert_one({"_id": bson.ObjectId(), "code": f_code, "date": d, "date_int": self.yyyymmdd_date(d), "ok": True})
+                        mon.insert_one({"_id": bson.ObjectId(), "code": f_code, "date": d,
+                                        "date_int": self.yyyymmdd_date(d), "ok": True})
                     elif calendar_mongo_info.get(d) is True:
                         pass
                     elif calendar_mongo_info.get(d) is False:
