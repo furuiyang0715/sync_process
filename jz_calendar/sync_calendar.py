@@ -31,15 +31,15 @@ class CalendarSync(CalendarsSync):
         new_start_2020 = datetime.datetime(2020, 1, 1)
 
         for code in codes:
-            print(code)
+            logger.info(code)
 
             mysql_all_sus, _ = self.gen_mysql_sus_info(
                 code, new_start_2020, limit_date, ts)
-            print("sql: ", mysql_all_sus)
+            logger.info("sql: ", mysql_all_sus)
 
             f_code = self.convert_6code(code)
             calendar_mongo_info = self.gen_calendar_mongo_info(f_code, new_start_2020, limit_date)
-            print("mon: ",  calendar_mongo_info)
+            logger.info("mon: ",  calendar_mongo_info)
 
             for d in self.get_date_list(new_start_2020, limit_date):
                 if d in mysql_all_sus:   # 停牌日
@@ -67,4 +67,4 @@ def task_day():
 
 # task_day()
 
-logger.info("hello")
+# logger.info("hello")
