@@ -1,15 +1,12 @@
 import datetime
 import sys
 import traceback
-
 import pymongo
-import logging
 
 from jz_index.base_index import BaseSync
 from jz_index.configs import MONGO_URL, MONGO_DB, MONGO_TABLE
 from jz_index.info_mixin import SyncInfoMixin
-
-logger = logging.getLogger("index_log")
+from jz_index.mylog import logger
 
 
 class IndexSync(SyncInfoMixin, BaseSync):
@@ -218,3 +215,6 @@ class IndexSync(SyncInfoMixin, BaseSync):
         if (self.check_date + datetime.timedelta(days=1)).month != self.check_date.month:
             logger.info("开始本月的指数【月更新】服务")
             self.month_sync()
+
+
+# logger.info("sync")

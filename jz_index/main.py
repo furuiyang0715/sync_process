@@ -10,11 +10,10 @@ from raven import Client
 
 sys.path.insert(0, "./..")
 
+from jz_index.mylog import logger
 from jz_index.configs import SENTRY_DSN
 from jz_index.sync_index import IndexSync
 
-
-logger = logging.getLogger("index_log")
 
 sentry = Client(SENTRY_DSN)
 
@@ -62,3 +61,5 @@ def main():
 
 
 main()
+
+# logger.info("main")

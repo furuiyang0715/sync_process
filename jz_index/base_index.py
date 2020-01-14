@@ -5,8 +5,7 @@ import pymysql
 from sqlalchemy import create_engine
 
 from jz_index.configs import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB
-
-logger = logging.getLogger("index_log")
+from jz_index.mylog import logger
 
 
 class BaseSync(object):
@@ -87,3 +86,6 @@ class BaseSync(object):
     def log(self, some):
         print("====== {} ======".format(some))
         # pass
+
+
+# logger.info("base")
